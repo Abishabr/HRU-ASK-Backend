@@ -3,12 +3,21 @@ export const validateRegister = (data) => {
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
         return { valid: false, message: 'All fields are required' };
     }
+    const nameRegex = /^[a-zA-Z]+$/;
+    if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
+        return { valid: false, message: 'First name and last name must contain only letters' };
+    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return { valid: false, message: 'Invalid email format' };
     }
     if (password !== confirmPassword) {
         return { valid: false, message: 'Passwords do not match' };
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    if (!passwordRegex.test(password)) {
+        return { valid: false, message: 'Password must be at least 6 characters long and contain both letters and numbers' };
     }
 
     if (password.length < 6) {
@@ -25,6 +34,11 @@ export const validateLogin = (data) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return { valid: false, message: 'Invalid email format' };
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    if (!passwordRegex.test(password)) {
+        return { valid: false, message: 'Password must be at least 6 characters long and contain both letters and numbers' };
     }
     return { valid: true };
 };
