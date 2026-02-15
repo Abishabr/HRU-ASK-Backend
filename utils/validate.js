@@ -1,4 +1,4 @@
-exports.validateRegister = (data) => {
+export const validateRegister = (data) => {
     const { firstName, lastName, email, password, confirmPassword } = data;
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
         return { valid: false, message: 'All fields are required' };
