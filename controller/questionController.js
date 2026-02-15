@@ -1,4 +1,5 @@
 import db from '../config/db.js';
+import { validateQuestion } from '../utils/validate.js';
 
 export const getAllQuestions = async (req, res) => {
     try {
@@ -26,9 +27,17 @@ export const getQuestionById = async (req, res) => {
 };
 
 export const createQuestion = async (req, res) => {
-    const { title, content, userId } = req.body;
+
+    const validationResult = validateQuestion(req.body);
+   
     try {
-        await db.query('INSERT INTO questions (title, content, user_id) VALUES (?, ?, ?)', [title, content, userId]);
+        if (!validationResult.valid) {
+            return res.status(400).json({ message: validationResult.message });
+        }
+        const { title, description } = req.body;
+        const userId = req.user && req.user.id;
+        if (!userId) return res.status(401).json({ message: 'Authentication required' });
+        await db.query('INSERT INTO questions (title, content, user_id) VALUES (?, ?, ?)', [title, description, userId]);
         res.status(201).json({ message: 'Question created successfully' });
     } catch (error) {
         console.error('Error creating question:', error);

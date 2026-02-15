@@ -1,3 +1,5 @@
+import e from "express";
+
 export const validateRegister = (data) => {
     const { firstName, lastName, email, password, confirmPassword } = data;
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
@@ -42,3 +44,23 @@ export const validateLogin = (data) => {
     }
     return { valid: true };
 };
+
+export const validateAnswer = (data) => {
+    const { description } = data;
+    if (!description) {
+        return { valid: false, message: 'Description is required' };
+    }
+    return { valid: true };
+};
+
+export const validateQuestion = (data) => {
+    const { title, description } = data;
+    if (!title) {
+        return { valid: false, message: 'Title is required' };
+    }
+    if (!description) {
+        return { valid: false, message: 'Description is required' };
+    }
+    return { valid: true };
+};
+
