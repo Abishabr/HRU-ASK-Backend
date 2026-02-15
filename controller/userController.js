@@ -14,11 +14,6 @@ export const registerUser = async (req, res) => {
     try {
         // Check if user already exists
 
-        // authentication and authorization
-
-        const jwtSecret = process.env.jwtSecret;
-
-
         const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
         if (rows.length > 0) {
             return res.status(409).json({ message: 'User already exists' });
@@ -30,7 +25,7 @@ export const registerUser = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
         // Create new user
-        await db.query('INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)', [firstName, lastName, email, hashedPassword]);
+        await db.query('INSERT INTO users (first_name, last_name, password, email) VALUES (?, ?, ?, ?)', [firstName, lastName, hashedPassword, email]);
         // fetch created user (omit password)
         const [userRows] = await db.query('SELECT id, first_name, last_name, email FROM users WHERE email = ?', [email]);
         const user = userRows[0];
