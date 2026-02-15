@@ -1,56 +1,55 @@
-import e from 'express';
 import db from '../config/db.js';
 import { validateAnswer } from '../utils/validate.js';
 
-export const answerQuestion = async (req, res) => {
-    const validationResult = validateAnswer(req.body);
-    
-    const { description  } = req.body;
-    const { questionId } = req.params;
-    const userId = req.user.id; // Assuming you have user authentication and the user ID is available in req.user.id
+export const answerQuestion = async (req, res, next) => {
     try {
+        const validationResult = validateAnswer(req.body);
         if (!validationResult.valid) {
-            return res.status(400).json({ message: validationResult.message });
+            const error = new Error(validationResult.message);
+            error.statusCode = 400;
+            return next(error);
         }
+        const { description  } = req.body;
+        const { questionId } = req.params;
+        const userId = req.user.id;
+        
         const [result] = await db.query('INSERT INTO answers (description, user_id, question_id) VALUES (?, ?, ?)', [description, userId, questionId]);
         res.status(201).json({ message: 'Answer created successfully', data: { id: result.insertId } });
     } catch (error) {
-        console.error('Error creating answer:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const getAnswersByQuestionId = async (req, res) => {
+export const getAnswersByQuestionId = async (req, res, next) => {
     const { questionId } = req.params;
     try {
         const [rows] = await db.query('SELECT * FROM answers WHERE question_id = ?', [questionId]);
         res.status(200).json({ message: 'Answers fetched successfully', data: rows });
     } catch (error) {
-        console.error('Error fetching answers:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }   
 };
 
-export const getAnswerById = async (req, res) => {
+export const getAnswerById = async (req, res, next) => {
     const { id } = req.params;  
     try {
         const [rows] = await db.query('SELECT * FROM answers WHERE id = ?', [id]);
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Answer not found' });
+            const error = new Error('Answer not found');
+            error.statusCode = 404;
+            return next(error);
         }
         res.status(200).json({ message: 'Answer fetched successfully', data: rows[0] });
     } catch (error) {
-        console.error('Error fetching answer:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }   
 };
 
-export const getAllAnswers = async (req, res) => {
+export const getAllAnswers = async (req, res, next) => {
     try {
         const [rows] = await db.query('SELECT * FROM answers'); 
         res.status(200).json({ message: 'Answers fetched successfully', data: rows });
     } catch (error) {
-        console.error('Error fetching answers:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };  
